@@ -26,73 +26,76 @@
                         <v-list-tile-title>Schedule</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile  
-                    :to="{ name: 'register' }"
-                >
-                    <v-list-tile-action>
-                        <v-icon></v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>Register</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-                <v-list-tile  
-                    :to="{ name: 'signin' }"
-                >
-                    <v-list-tile-action>
-                        <v-icon></v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>Sign In</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-                <v-list-tile  
-                    @click.prevent="signOut"
-                >
-                    <v-list-tile-action>
-                        <v-icon>logout</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>Sign Out</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar color="amber" dark fixed app>
-        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-        <v-toolbar-title @click.prevent="goHome">Go Ref!</v-toolbar-title>
+        <v-toolbar color="amber" fixed app>
+            <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+            <v-toolbar-title>
+                <v-btn flat class="headline text-none" @click="goHome">
+                    <span class="font-weight-light">Go</span>
+                    <span>Ref!</span>
+                </v-btn>                
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn v-if="!user" flat @click="signIn">
+                <span>Sign In</span>
+                <v-icon right>exit_to_app</v-icon>
+            </v-btn>
+            <v-btn v-if="!user" flat @click="register">
+                <span>Register</span>
+                <v-icon right>account_circle</v-icon>
+            </v-btn>
+            <span v-if="user">Welcome, {{ user.email }}</span>
+            <v-btn v-if="user" flat @click="signOut">
+                <span>Sign Out</span>
+                <v-icon right>power_settings_new</v-icon>
+            </v-btn>
         </v-toolbar>
     </div>
 </template>
 
 <script>
+import db from '@/firebase/init'
+import firebase from 'firebase'
+
 export default {
     name: 'Navigation',
     data() {
         return {
             drawer: false,
-            items: [
-                { title: 'Home', path: 'home', icon: 'home' },
-                { title: 'Schedule', path: 'schedule', icon: 'schedule' },
-                { title: 'Register', path: 'register', icon: null },
-                { title: 'Sign In', path: 'signin', icon: null },
-                { title: 'Sign Out', path: null, icon: 'logout' }
-            ]
+            user: null
         }
     },
     methods: {
         signOut() {
-            this.$router.push({ name: 'home' })
+            firebase.auth().signOut().then(() => {                                
+                this.$router.push({ name: 'home' })
+            })            
         },
         goHome() {
             this.$router.push({ name: 'home' })
+        },
+        register() {
+            this.$router.push({ name: 'register' })
+        },
+        signIn() {
+            this.$router.push({ name: 'signin' })
         }
-    }
+    },
+    created() {			
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                console.log('sign in user: ', user)
+                this.user = user
+            } else {
+                console.log('sign out user')
+                this.user = null
+            }
+        })
+    }	    
 }
 </script>
 
 <style lang="scss">
-    .v-toolbar__title:hover {
-        cursor: pointer;
-    }
+
 </style>

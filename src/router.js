@@ -24,12 +24,12 @@ export default new Router({
     {
       path: '/register',
       name: 'register',
-      component: () => import('./views/Register.vue')
+      component: () => import('./views/auth/Register.vue')
     },
     {
       path: '/signin',
       name: 'signin',
-      component: () => import('./views/SignIn.vue')
+      component: () => import('./views/auth/SignIn.vue')
     } 
   ]
 })
